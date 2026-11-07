@@ -10,27 +10,66 @@ export default function AudioCompanion() {
   const [isOpen, setIsOpen] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const userManuallyPausedRef = useRef(false);
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = 0.7;
-    }
-  }, []);
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.volume = 0.7;
+
+    const cleanupListeners = () => {
+      window.removeEventListener("pointerdown", tryPlay);
+      window.removeEventListener("touchstart", tryPlay);
+      window.removeEventListener("click", tryPlay);
+      window.removeEventListener("keydown", tryPlay);
+      window.removeEventListener("scroll", tryPlay, { capture: true });
+    };
+
+    const tryPlay = () => {
+      if (userManuallyPausedRef.current || !audioRef.current) return;
+      audioRef.current
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+          cleanupListeners();
+        })
+        .catch(() => {
+          // Browser prevented unmuted autoplay; will resume on first user interaction
+        });
+    };
+
+    // 1. Attempt direct immediate autoplay
+    tryPlay();
+
+    // 2. Fallback: on the very first touch, click, scroll or keypress, start audio seamlessly
+    window.addEventListener("pointerdown", tryPlay, { once: true, passive: true });
+    window.addEventListener("touchstart", tryPlay, { once: true, passive: true });
+    window.addEventListener("click", tryPlay, { once: true, passive: true });
+    window.addEventListener("keydown", tryPlay, { once: true, passive: true });
+    window.addEventListener("scroll", tryPlay, { once: true, passive: true, capture: true });
+
+    return () => {
+      cleanupListeners();
+    };
+  }, [audioSource]);
 
   const handleTogglePlay = () => {
     if (!audioRef.current) return;
 
     if (isPlaying) {
+      userManuallyPausedRef.current = true;
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
+      userManuallyPausedRef.current = false;
       audioRef.current
         .play()
         .then(() => {
           setIsPlaying(true);
         })
         .catch((err) => {
-          console.warn("Audio playback couldn't start automatically:", err);
+          console.warn("Audio playback couldn't start:", err);
           setIsPlaying(false);
         });
     }
@@ -40,6 +79,7 @@ export default function AudioCompanion() {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
+      userManuallyPausedRef.current = false;
       setAudioSource(url);
       setIsOpen(false);
       if (audioRef.current) {
@@ -59,6 +99,7 @@ export default function AudioCompanion() {
       <audio
         ref={audioRef}
         src={audioSource}
+        autoPlay
         loop
         preload="auto"
         onPlay={() => setIsPlaying(true)}
