@@ -1,26 +1,96 @@
 @import "tailwindcss";
+@source "../";
+@source "../components";
+@source "../app";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg-paper: #FAF9F5;
+    --ink-strong: #141413;
+    --ink-muted: #8C8982;
+  }
+
+  html {
+    background-color: var(--bg-paper);
+    color: var(--ink-strong);
+    font-family: "Inter Variable", -apple-system, BlinkMacSystemFont, sans-serif;
+    scroll-behavior: auto !important;
+  }
+
+  body {
+    background-color: var(--bg-paper);
+    color: var(--ink-strong);
+    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.font-display-serif {
+  font-family: "Newsreader Variable", Georgia, serif;
+  font-Variation-settings: "opsz" 48;
+}
+
+.font-serif-note {
+  font-family: "Newsreader Variable", Georgia, serif;
+}
+
+.font-mine-sans {
+  font-family: "Inter Variable", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-caveat {
+  font-family: "Caveat", cursive;
+}
+
+/* Subtle warm paper texture */
+.paper-surface {
+  background-color: #FAF9F5;
+  background-image: url("/paper-texture.svg");
+  background-repeat: repeat;
+  background-size: 240px 240px;
+}
+
+/* Postage stamp perforated edge for Image 3 thumbnail strip */
+.stamp-frame {
+  background-color: #FFFFFF;
+  padding: 4px;
+  box-shadow: 0 2px 6px rgba(20, 20, 19, 0.08), 0 0 0 1px rgba(20, 20, 19, 0.05);
+  background-image: radial-gradient(circle at 0 50%, #FAF9F5 2px, transparent 2.5px),
+    radial-gradient(circle at 100% 50%, #FAF9F5 2px, transparent 2.5px);
+}
+
+/* Lenis smooth scrolling */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(20, 20, 19, 0.14);
+  border-radius: 9999px;
 }
